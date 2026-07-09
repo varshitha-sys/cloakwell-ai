@@ -1,0 +1,4 @@
+# DLP proxy runtime + test deps.
+# The Tier 1 engine (tier1.py) is pure stdlib; nothing below is needed to import it.
+mitmproxy>=10.0    # TLS MITM proxy runtime (addon.py)
+pytest>=8.0        # test suite
