@@ -1,6 +1,8 @@
 # DLP proxy runtime + test deps.
 # The Tier 1 engine (tier1.py) is pure stdlib; nothing below is needed to import it.
-mitmproxy>=10.0    # TLS MITM proxy runtime (addon.py)
+mitmproxy>=10.0    # TLS MITM proxy runtime (addon.py) — run via .venv so it sees these deps
 openai>=1.40       # Fireworks (Gemma) via its OpenAI-compatible API — Tier 2 (tier2.py)
+fastapi>=0.110     # thin /classify HTTP surface (api.py)
+uvicorn>=0.29      # ASGI server to run api.py
 pyyaml>=6.0        # loads the org policy.yaml (policy.py)
 pytest>=8.0        # test suite

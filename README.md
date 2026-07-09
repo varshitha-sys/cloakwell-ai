@@ -37,7 +37,7 @@ docker compose up
 
 ```
 .
-├── server/          # Core redaction engine: detect → swap → call → un-swap
+├── proxy/           # Python DLP core: TLS MITM proxy + detection engine + /classify API
 ├── extension/        # Browser extension for real-time prompt interception (demo surface)
 ├── docs/             # Architecture notes, research, pitch materials
 ├── Dockerfile
