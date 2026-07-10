@@ -5,4 +5,5 @@ openai>=1.40       # Fireworks (Gemma) via its OpenAI-compatible API — Tier 2 
 fastapi>=0.110     # thin /classify HTTP surface (api.py)
 uvicorn>=0.29      # ASGI server to run api.py
 pyyaml>=6.0        # loads the org policy.yaml (policy.py)
+python-dotenv>=1.0 # auto-loads repo-root .env so Tier 2 creds reach every entrypoint
 pytest>=8.0        # test suite

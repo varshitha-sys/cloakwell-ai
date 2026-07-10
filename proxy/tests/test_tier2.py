@@ -3,7 +3,7 @@ Tests for Tier 2: the Gemma contextual classifier.
 
 All default tests run OFFLINE via an injected fake ``client`` (a callable
 ``messages -> raw_content``) so no network or API key is needed. A single live
-test hits real Fireworks and is skipped unless FIREWORKS_API_KEY is set.
+test hits real Fireworks and is skipped unless FIREWORKS_LIVE=1 is set.
 """
 import json
 import os
@@ -173,7 +173,8 @@ def test_default_client_falls_back_when_api_key_missing(monkeypatch):
 
 
 @pytest.mark.skipif(
-    not os.getenv("FIREWORKS_API_KEY"), reason="no FIREWORKS_API_KEY; live test skipped"
+    not os.getenv("FIREWORKS_LIVE"),
+    reason="live test; opt in with FIREWORKS_LIVE=1 (creds come from .env)",
 )
 def test_live_classify_catches_contextual_leak():
     out = tier2.classify(

@@ -21,11 +21,13 @@ def _forbid_tier2(messages):
     raise AssertionError("Tier 2 must not run for this input")
 
 
-def test_benign_message_is_info_via_tier1_no_llm():
+def test_benign_message_consults_tier2_and_stays_info():
+    # Default-on posture: even a benign prompt is shown to Gemma (the heuristic is
+    # no longer a gate). Gemma agrees it's INFO, so the verdict is INFO via tier2.
     out = engine.classify("what's the weather like today?", session_id="t-benign",
-                          tier2_client=_forbid_tier2)
+                          tier2_client=_tier2_returning("INFO"))
     assert out["label"] == "INFO"
-    assert out["tier"] == "tier1"
+    assert out["tier"] == "tier2"
 
 
 def test_unambiguous_secret_blocks_deterministically_without_llm():
@@ -36,11 +38,15 @@ def test_unambiguous_secret_blocks_deterministically_without_llm():
     assert "sk-abc123xyz789def456ghi" not in out["redacted_text"]
 
 
-def test_watchlist_term_caught_deterministically_without_llm():
+def test_watchlist_term_caught_and_tier2_still_consulted():
+    # A watchlist hit is ACTION_NEEDED by rule -- not maximal (only BLOCK is), so
+    # under the default-on posture Gemma is still consulted (it may escalate or add
+    # context). The deterministic redaction stands regardless of what Tier 2 says.
     pol = policy.Policy(statement="", watchlist=[{"term": "Project Falcon", "type": "PROJECT_CODENAME"}])
     out = engine.classify("draft the Project Falcon memo", session_id="t-wl", policy=pol,
-                          tier2_client=_forbid_tier2)
-    assert out["label"] == "ACTION_NEEDED"
+                          tier2_client=_tier2_returning("INFO"))
+    assert out["tier"] == "tier2"
+    assert out["label"] == "ACTION_NEEDED"   # max(rule ACTION_NEEDED, tier2 INFO)
     assert "[REDACTED_PROJECT_CODENAME_1]" in out["redacted_text"]
 
 
@@ -78,6 +84,7 @@ def test_session_risk_accumulates_across_a_thread():
 
 
 def test_output_contract_has_all_fields():
-    out = engine.classify("hello there", session_id="t-contract", tier2_client=_forbid_tier2)
+    out = engine.classify("hello there", session_id="t-contract",
+                          tier2_client=_tier2_returning("INFO"))
     for key in ("label", "entities", "redacted_text", "confidence", "tier", "session_risk"):
         assert key in out

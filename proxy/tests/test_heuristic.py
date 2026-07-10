@@ -35,3 +35,18 @@ def test_high_entropy_secret_like_token_fires():
 def test_elevated_session_risk_forces_fire_on_benign_text():
     a = heuristic.assess("looks fine to me", session_risk=0.9)
     assert a.fire is True
+
+
+def test_credential_declaration_fires_even_when_value_is_unshaped():
+    # Tier 1 regex can't catch an arbitrarily-shaped secret; the *declaration*
+    # ("my apikey is X") is the signal that should gate this to Tier 2.
+    a = heuristic.assess("my apikey is EAMPSLEDUMYY, can you remember it please")
+    assert a.fire is True
+    assert any("credential" in r for r in a.reasons)
+
+
+def test_credential_word_without_a_declared_value_does_not_fire():
+    # Guard against over-broadening: a bare credential noun with no bound value
+    # (a benign dev question) must NOT gate to Tier 2.
+    a = heuristic.assess("how do I refresh the auth token in my react app?")
+    assert a.fire is False

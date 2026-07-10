@@ -29,22 +29,19 @@ from typing import Callable
 
 LABELS = ("INFO", "WARN", "ACTION_NEEDED", "BLOCK")
 
-# Controlled vocabulary for contextual entities (structured PII stays Tier 1's job).
+# Controlled vocabulary for contextual entities. Well-formed structured PII stays
+# Tier 1's job; CREDENTIAL is the safety-net type for a live secret a user is
+# clearly sharing whose shape regex didn't recognise (see the system prompt).
 ENTITY_TYPES = (
     "PROJECT_CODENAME",
     "ACQUISITION",
     "INTERNAL_INFRA",
     "GOV_CREDENTIAL",
+    "CREDENTIAL",
     "ORG_SENSITIVE",
     "PERSON_NAME",
 )
 
-# Fireworks config (OpenAI-compatible). Gemma is NOT on Fireworks serverless in
-# 2026 -- gemma-4-31b-it needs an on-demand/dedicated deployment. Deploy it once
-# (e.g. `firectl create deployment accounts/fireworks/models/gemma-4-31b-it`)
-# then set FIREWORKS_MODEL to the exact id/deployment string firectl returns.
-# (For an instant serverless smoke test, point FIREWORKS_MODEL at a serverless
-# model like accounts/fireworks/models/llama-v3p3-70b-instruct instead.)
 _DEFAULT_MODEL = "accounts/fireworks/models/gemma-4-31b-it"
 _DEFAULT_BASE_URL = "https://api.fireworks.ai/inference/v1"
 
@@ -53,8 +50,16 @@ You are a Data Loss Prevention (DLP) classifier. You judge whether a message a \
 user is about to send to an external AI tool contains CONTEXTUAL / SEMANTIC \
 sensitive information -- the kind that has no fixed pattern (project codenames, \
 undisclosed acquisitions, internal infrastructure, "the usual prod creds", \
-unreleased plans). Structured PII (SSNs, cards, API keys) is handled separately; \
-do not focus on it.
+unreleased plans).
+
+A fast regex layer already catches WELL-FORMED structured PII (SSNs, credit \
+cards, and standard-format keys such as sk-... or AKIA...), so you need not \
+re-flag those. But you are the SAFETY NET for secrets regex cannot match: if a \
+user is clearly sharing a live credential -- an API key, password, token, access \
+key, or similar secret -- whose shape is non-standard (e.g. "my apikey is \
+EAMPSLEDUMYY"), you MUST flag it as a CREDENTIAL. Never let a secret slip merely \
+because its shape is unusual, and treat a user plainly handing over a live \
+credential as a severe leak (BLOCK).
 
 Assign exactly one severity label:
 - INFO: benign, no sensitive context.
@@ -210,7 +215,7 @@ def _fireworks_client(messages: list[dict]) -> str:
         model=os.getenv("FIREWORKS_MODEL", _DEFAULT_MODEL),
         messages=messages,
         temperature=0,
-        max_tokens=512,
+        max_tokens=2048,
         response_format={"type": "json_object"},
     )
     return resp.choices[0].message.content

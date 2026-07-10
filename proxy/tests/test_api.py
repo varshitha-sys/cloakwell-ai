@@ -1,14 +1,31 @@
 """
 Tests for the thin FastAPI classify layer (proxy/api.py).
 
-These exercise only the deterministic Tier-1 paths so no network/LLM is involved;
-Tier 2 gating is covered in test_engine.py with injected fakes.
+Tier 2 now runs by default (only an already-BLOCK Tier 1 verdict skips it), so we
+stub Gemma at the client boundary to keep these offline and deterministic. Tier 2
+gating/behaviour is covered in test_engine.py with injected fakes.
 """
+import json
+
+import pytest
 from fastapi.testclient import TestClient
 
 import api
+import tier2
 
 client = TestClient(api.app)
+
+
+@pytest.fixture(autouse=True)
+def stub_gemma(monkeypatch):
+    """Default-on Tier 2 would otherwise hit the network; return a benign INFO."""
+    monkeypatch.setattr(
+        tier2,
+        "_fireworks_client",
+        lambda messages: json.dumps(
+            {"label": "INFO", "confidence": 0.9, "reasoning": "stub", "entities": []}
+        ),
+    )
 
 
 def test_health_ok():
@@ -17,12 +34,12 @@ def test_health_ok():
     assert r.json()["status"] == "ok"
 
 
-def test_classify_benign_is_info_tier1():
+def test_classify_benign_is_info_via_tier2():
     r = client.post("/api/classify", json={"text": "hello world", "session_id": "api-benign"})
     assert r.status_code == 200
     body = r.json()
     assert body["label"] == "INFO"
-    assert body["tier"] == "tier1"
+    assert body["tier"] == "tier2"   # default-on: Gemma consulted, agrees it's benign
     assert "redacted_text" in body and "session_risk" in body
 
 

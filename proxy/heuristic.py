@@ -40,6 +40,13 @@ _FIRE_THRESHOLD = 0.3
 _SESSION_FORCE = 0.7
 _TOKEN_RE = re.compile(r"\S+")
 
+_CREDENTIAL_DECL_RE = re.compile(
+    r"\b(?:api[\s_-]?key|access[\s_-]?key|secret[\s_-]?key|private[\s_-]?key|"
+    r"secret|token|password|passwd|passphrase|credentials?|bearer)\b"
+    r"\s*(?:is|are|=|:)\s*\S{3,}",
+    re.IGNORECASE,
+)
+
 
 @dataclass
 class Heuristic:
@@ -87,6 +94,10 @@ def assess(text: str, *, session_risk: float = 0.0) -> Heuristic:
     if _has_high_entropy_token(text):
         reasons.append("high_entropy_token")
         score += 0.3
+
+    if _CREDENTIAL_DECL_RE.search(text):
+        reasons.append("credential_declaration")
+        score += 0.4
 
     if len(text) > 800:
         reasons.append("long_message")

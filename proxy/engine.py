@@ -8,8 +8,8 @@ pipeline here means the proxy and the API can never drift apart.
 Pipeline (see plan.md "Tier routing"):
   1. Tier 1 (regex) + org watchlist  -> deterministic structured/terminology hits
   2. Rule-grade those hits            -> a baseline label with no LLM
-  3. Cheap heuristic gate             -> decide if a Tier 2 LLM call is warranted
-  4. Tier 2 (Gemma) ONLY when gated   -> contextual grading; take the max label
+  3. Heuristic (cost hint, not a gate)-> logged only; Tier 2 runs by default now
+  4. Tier 2 (Gemma) unless Tier 1=BLOCK-> contextual grading; take the max label
   5. Redact every detected value      -> reversible [REDACTED_*] placeholders
   6. Update conversation session risk -> rising context can bump future messages
 
@@ -20,12 +20,18 @@ Public API:
 """
 from __future__ import annotations
 
+from pathlib import Path
+
+from dotenv import load_dotenv
+
 import heuristic
 import policy as policy_module
 import redactor
 import session as session_module
 import tier1
 import tier2
+
+load_dotenv(Path(__file__).resolve().parent.parent / ".env", override=False)
 
 # --- Severity model -------------------------------------------------------
 
@@ -51,6 +57,7 @@ _SEVERITY = {
     "INDIAN_PHONE": "WARN",
     # Org watchlist / Tier 2 contextual types.
     "GOV_CREDENTIAL": "BLOCK",
+    "CREDENTIAL": "BLOCK",  # unshaped live secret Tier 2 caught that regex missed
     "PROJECT_CODENAME": "ACTION_NEEDED",
     "ACQUISITION": "ACTION_NEEDED",
     "INTERNAL_INFRA": "ACTION_NEEDED",
@@ -110,9 +117,7 @@ def classify(
     # 2. Decide whether to spend a Tier 2 LLM call.
     prior_risk = _tracker.risk(session_id)
     heur = heuristic.assess(text, session_risk=prior_risk)
-    ambiguous_tier1 = rule_label == "WARN"  # a mild hit context might worsen
-    # Already-BLOCK is unambiguous and maximal — nothing for Tier 2 to add.
-    run_tier2 = rule_label != "BLOCK" and (heur.fire or ambiguous_tier1)
+    run_tier2 = rule_label != "BLOCK"
 
     label = rule_label
     confidence = 0.99
@@ -120,7 +125,7 @@ def classify(
     contextual_entities: list[dict] = []
     reasons = list(heur.reasons)
 
-    # 3. Tier 2 (Gemma) — contextual grading, only when gated.
+    # 3. Tier 2 (Gemma) — contextual grading, unless skipped as pointless/trivial.
     if run_tier2:
         tier = "tier2"
         t2 = tier2.classify(text, context=context, tier1_entities=structured,
