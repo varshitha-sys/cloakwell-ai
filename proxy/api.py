@@ -67,38 +67,9 @@ def simulate_llm_response(prompt: str) -> str:
 
 
 def query_cloud_llm(redacted_prompt: str) -> str:
-    api_key = os.getenv("FIREWORKS_API_KEY")
-    if not api_key:
-        return simulate_llm_response(redacted_prompt)
-    
-    try:
-        url = "https://api.fireworks.ai/inference/v1/chat/completions"
-        headers = {
-            "Authorization": f"Bearer {api_key}",
-            "Content-Type": "application/json"
-        }
-        # Use llama-v3p3-70b-instruct as a standard chat model
-        payload = {
-            "model": os.getenv("FIREWORKS_MODEL", "accounts/fireworks/models/llama-v3p3-70b-instruct"),
-            "messages": [
-                {
-                    "role": "system", 
-                    "content": "You are a helpful assistant. You must address the placeholders present in the prompt, like [REDACTED_PERSON_NAME_1] or [REDACTED_SSN_1], in your response verbatim, without attempting to guess the real values."
-                },
-                {"role": "user", "content": redacted_prompt}
-            ],
-            "temperature": 0.7,
-            "max_tokens": 512
-        }
-        with httpx.Client(timeout=15.0) as client:
-            resp = client.post(url, json=payload, headers=headers)
-            if resp.status_code == 200:
-                data = resp.json()
-                return data["choices"][0]["message"]["content"]
-            else:
-                return f"Error from Fireworks API (status {resp.status_code}): {resp.text}"
-    except Exception as e:
-        return f"Error connecting to cloud model: {str(e)}. (Falling back to local simulation)\n\n" + simulate_llm_response(redacted_prompt)
+    # Always use local simulation for demo stability and speed
+    return simulate_llm_response(redacted_prompt)
+
 
 
 @app.get("/health")

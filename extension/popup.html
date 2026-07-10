@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>CLOAKWELL Safety Panel</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="popup-card">
+    <header class="popup-header">
+      <div class="logo-group">
+        <svg class="logo-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2L3 7V13C3 17.6 6.8 21.7 12 22C17.2 21.7 21 17.6 21 13V7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+        </svg>
+        <span class="logo-name">CLOAKWELL</span>
+      </div>
+      <div class="status-indicator">
+        <span id="indicator-dot" class="dot dot-active"></span>
+        <span id="indicator-text">Active</span>
+      </div>
+    </header>
+
+    <main class="popup-body">
+      <!-- Toggle Row -->
+      <div class="toggle-container">
+        <div class="toggle-info">
+          <span class="toggle-title">DLP Shield Protection</span>
+          <span class="toggle-desc">Scan and redact sensitive prompts</span>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="protection-toggle" checked>
+          <span class="slider round"></span>
+        </label>
+      </div>
+
+      <!-- Stats List -->
+      <div class="stats-box">
+        <div class="stat-row">
+          <span class="stat-label">Local Server:</span>
+          <span class="stat-value">localhost:8000</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Security Engine:</span>
+          <span class="stat-value text-clean">AMD Instinct Enabled</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Detections Intercepted:</span>
+          <span class="stat-value highlight-num" id="stats-blocked-count">0</span>
+        </div>
+      </div>
+
+      <button id="open-dashboard-btn" class="dashboard-btn">Open Audit Dashboard</button>
+    </main>
+
+    <footer class="popup-footer">
+      <span>Gemma 2 (2B) — ROCm local execution</span>
+    </footer>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>

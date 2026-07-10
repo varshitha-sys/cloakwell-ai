@@ -83,7 +83,7 @@ _PATTERNS: list[tuple[str, re.Pattern, "callable | None"]] = [
     ("AWS_ACCESS_KEY", re.compile(r"\bAKIA[0-9A-Z]{16}\b"), None),
     ("GITHUB_TOKEN", re.compile(r"\bgh[posur]_[A-Za-z0-9]{36,}\b"), None),
     ("GCP_API_KEY", re.compile(r"\bAIza[0-9A-Za-z\-_]{35}\b"), None),
-    ("API_KEY", re.compile(r"\bsk-[A-Za-z0-9]{20,}\b"), None),
+    ("API_KEY", re.compile(r"\bsk-[A-Za-z0-9\-]{20,}\b"), None),
     # URLs carrying auth, and credentials embedded in URLs.
     (
         "AUTH_URL",

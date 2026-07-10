@@ -1,0 +1,246 @@
+/* CLOAKWELL Popup UI Stylesheet */
+
+:root {
+  --bg-primary: #070c16;      /* Deep Prussian Navy */
+  --bg-secondary: #0d1627;    /* Slate Navy */
+  --bg-card: #0f1a30;
+  --border-color: rgba(114, 164, 194, 0.15);
+  
+  --color-clean: #72a4c2;        /* Light blue */
+  --color-mild: #4c86ac;         /* Medium blue */
+  --color-sensitive: #134670;    /* Dark navy */
+  
+  --text-primary: #f0f4f8;
+  --text-secondary: #9aa8b9;
+  --text-muted: #5e6d82;
+  
+  --font-ui: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-ui);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  width: 320px;
+  overflow: hidden;
+}
+
+.popup-card {
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 16px;
+  background-color: var(--bg-secondary);
+}
+
+/* Header style */
+.popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 12px;
+  margin-bottom: 14px;
+}
+
+.logo-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--color-clean);
+}
+
+.logo-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.logo-name {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, var(--text-primary) 30%, var(--color-clean) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.dot-active {
+  background-color: #63b392;
+  box-shadow: 0 0 6px #63b392;
+}
+
+.dot-inactive {
+  background-color: var(--text-muted);
+  box-shadow: none;
+}
+
+/* Toggle Switch Row */
+.toggle-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 14px;
+}
+
+.toggle-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.toggle-title {
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.toggle-desc {
+  font-size: 10.5px;
+  color: var(--text-secondary);
+}
+
+/* Switch element structure */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 36px;
+  height: 20px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  transition: .3s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 12px;
+  width: 12px;
+  left: 3px;
+  bottom: 3px;
+  background-color: var(--text-secondary);
+  transition: .3s;
+}
+
+input:checked + .slider {
+  background-color: var(--color-sensitive);
+  border-color: var(--color-clean);
+}
+
+input:checked + .slider:before {
+  transform: translateX(16px);
+  background-color: var(--text-primary);
+}
+
+.slider.round {
+  border-radius: 20px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+/* Stats Box */
+.stats-box {
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+}
+
+.stat-label {
+  color: var(--text-secondary);
+}
+
+.stat-value {
+  font-weight: 500;
+}
+
+.text-clean {
+  color: var(--color-clean);
+}
+
+.highlight-num {
+  font-family: monospace;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-clean);
+}
+
+/* Button */
+.dashboard-btn {
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 6px;
+  background: linear-gradient(135deg, var(--color-mild) 0%, var(--color-sensitive) 100%);
+  color: var(--text-primary);
+  font-size: 12px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(19, 70, 112, 0.3);
+  transition: all 0.2s;
+}
+
+.dashboard-btn:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 15px rgba(19, 70, 112, 0.4);
+}
+
+.dashboard-btn:active {
+  transform: translateY(0);
+}
+
+/* Footer */
+.popup-footer {
+  text-align: center;
+  font-size: 9px;
+  color: var(--text-muted);
+  border-top: 1px solid rgba(255, 255, 255, 0.03);
+  padding-top: 8px;
+  margin-top: 4px;
+}
