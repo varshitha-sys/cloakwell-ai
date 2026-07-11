@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Download &amp; Setup — Local-First AI Redaction</title>
+    <meta
+      name="description"
+      content="Install and run the local-first AI redaction layer with Docker and the browser extension."
+    />
+    <link rel="stylesheet" href="css/main.css" />
+    <link rel="icon" type="image/png" href="assets/crow-imogen-oh.png" />
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  </head>
+  <body>
+    <!-- Scaffold: full install steps filled in plan step 4 -->
+    <div id="app" data-page="download">
+      <header class="site-header" data-partial="nav"></header>
+      <main class="page-download content-panel">
+        <h1>Download &amp; setup</h1>
+        <p class="lede">Clone the repo and run the stack with Docker Compose.</p>
+
+        <ol class="steps">
+          <li>
+            <h2>Clone</h2>
+            <div class="code-wrapper" x-data="{ copied: false }">
+              <pre><code>git clone https://github.com/varshitha-sys/amd-hackathon-track3.git
+cd amd-hackathon-track3</code></pre>
+              <button 
+                class="copy-btn"
+                @click="navigator.clipboard.writeText($el.previousElementSibling.innerText.trim()); copied = true; setTimeout(() => copied = false, 2000)"
+                title="Copy to clipboard"
+              >
+                <svg x-show="!copied" class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                <svg x-show="copied" class="icon success" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              </button>
+            </div>
+          </li>
+          <li>
+            <h2>Start services</h2>
+            <div class="code-wrapper" x-data="{ copied: false }">
+              <pre><code>docker compose up</code></pre>
+              <button 
+                class="copy-btn"
+                @click="navigator.clipboard.writeText($el.previousElementSibling.innerText.trim()); copied = true; setTimeout(() => copied = false, 2000)"
+                title="Copy to clipboard"
+              >
+                <svg x-show="!copied" class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                <svg x-show="copied" class="icon success" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              </button>
+            </div>
+          </li>
+          <li>
+            <h2>Load the browser extension</h2>
+            <p>
+              Chrome → Extensions → Developer mode → Load unpacked → select the
+              <code>extension/</code> folder in this repo.
+            </p>
+          </li>
+        </ol>
+
+        <p>
+          Full source and issues:
+          <a
+            href="https://github.com/varshitha-sys/amd-hackathon-track3"
+            target="_blank"
+            rel="noopener noreferrer"
+            >github.com/varshitha-sys/amd-hackathon-track3</a
+          >
+        </p>
+      </main>
+      <footer class="site-footer" data-partial="footer"></footer>
+    </div>
+    <script type="module" src="js/main.js"></script>
+  </body>
+</html>

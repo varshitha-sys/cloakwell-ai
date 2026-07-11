@@ -1,0 +1,102 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  font-family: var(--font-sans);
+  color: var(--color-text-on-light);
+  line-height: 1.6;
+  background-color: var(--color-off-white);
+}
+
+/* Full-height shell so the footer sits at the bottom when content is short */
+#app {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+/* Sharp monospaced ASCII background (scaled by JS to any viewport) */
+.ascii-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ascii-color);
+}
+
+.ascii-bg__art {
+  margin: 0;
+  padding: 0;
+  background: transparent !important;
+  color: inherit !important;
+  border: none;
+  border-radius: 0;
+  overflow: visible;
+  font-family: var(--font-mono);
+  font-weight: 400;
+  white-space: pre;
+  line-height: 1.05;
+  letter-spacing: 0;
+  user-select: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+a {
+  color: var(--color-prussian-soft);
+}
+
+a:hover {
+  color: var(--color-prussian);
+}
+
+h1,
+h2,
+h3 {
+  line-height: 1.2;
+  color: var(--color-prussian);
+  font-family: var(--font-display);
+  font-weight: 700;
+}
+
+code,
+pre:not(.ascii-bg__art) {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+}
+
+pre:not(.ascii-bg__art) {
+  background: var(--color-prussian-deep);
+  color: var(--color-off-white);
+  padding: var(--space-3);
+  border-radius: var(--radius);
+  overflow-x: auto;
+}
+
+pre:not(.ascii-bg__art) code {
+  background: none;
+  padding: 0;
+}

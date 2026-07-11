@@ -1,0 +1,128 @@
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: 0.65rem 1.25rem;
+  border-radius: var(--radius);
+  font-weight: 600;
+  text-decoration: none;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.btn-primary {
+  background: var(--color-prussian);
+  color: var(--color-white);
+  border-color: var(--color-prussian);
+}
+
+.btn-primary:hover {
+  background: var(--color-prussian-soft);
+  border-color: var(--color-prussian-soft);
+  color: var(--color-white);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--color-prussian);
+  border-color: var(--color-prussian);
+}
+
+.btn-ghost:hover {
+  background: var(--color-prussian);
+  color: var(--color-white);
+}
+
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-prussian-soft);
+  margin: 0 0 var(--space-2);
+}
+
+.lede {
+  font-size: 1.125rem;
+  max-width: 40rem;
+  color: var(--color-prussian-soft);
+}
+
+/* Content sits on a light surface so ASCII never reduces readability */
+.content-panel {
+  background: var(--content-surface);
+  border: 1px solid var(--content-surface-border);
+  border-radius: calc(var(--radius) * 1.5);
+  box-shadow: var(--shadow);
+  padding: var(--space-5);
+  backdrop-filter: blur(1px);
+}
+
+.hero {
+  padding: var(--space-6) var(--space-4);
+}
+
+.page-download.content-panel {
+  padding: var(--space-5);
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+
+.steps {
+  padding-left: 1.25rem;
+}
+
+.steps li {
+  margin-bottom: var(--space-4);
+}
+
+.steps h2 {
+  font-size: 1.15rem;
+  margin: 0 0 var(--space-2);
+}
+
+/* Copy to clipboard elements */
+.code-wrapper {
+  position: relative;
+  display: block;
+}
+
+.copy-btn {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--color-muted);
+  border-radius: 6px;
+  width: 2.2rem;
+  height: 2.2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  padding: 0;
+}
+
+.copy-btn:hover {
+  background: rgba(255, 255, 255, 0.16);
+  color: var(--color-white);
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+.copy-btn svg {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.copy-btn svg.success {
+  color: #10b981;
+}

@@ -1,0 +1,35 @@
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
+
+:root {
+  /* Prussian blue + white system */
+  --color-prussian: #003153;
+  --color-prussian-deep: #001f35;
+  --color-prussian-soft: #0a4a6e;
+  --color-white: #ffffff;
+  --color-off-white: #f4f7fa;
+  --color-muted: #c5d4e0;
+  --color-text-on-dark: #ffffff;
+  --color-text-on-light: #003153;
+
+  --font-serif: "Lora", Georgia, Cambria, "Times New Roman", Times, serif;
+  --font-display: "Playfair Display", Georgia, serif;
+  --font-sans: var(--font-serif);
+  --font-mono: ui-monospace, "Cascadia Code", "Consolas", monospace;
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 1rem;
+  --space-4: 1.5rem;
+  --space-5: 2.5rem;
+  --space-6: 4rem;
+
+  --radius: 0.8rem;
+  --shadow: 0 12px 36px rgba(0, 49, 83, 0.08);
+  --max-width: 72rem;
+  --header-h: 4.5rem;
+
+  /* Decorative ASCII layer — low contrast so content stays readable */
+  --ascii-color: rgb(163 70 0 / 0.32);
+  --content-surface: rgba(255, 255, 255, 0.15);
+  --content-surface-border: rgba(0, 49, 83, 0.12);
+}
