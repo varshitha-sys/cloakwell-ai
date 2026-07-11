@@ -225,10 +225,10 @@ real; proxy working across CLI tools; AMD inference story firmed up.
 | # | Task | Details | Est. Time |
 |---|------|---------|-----------|
 | 16 | **Containerization** | `docker-compose.yml` spinning up the proxy (mitmproxy addon + `api.py`) and dashboard. One-command startup: `docker-compose up`. | 2-3 hours |
-| 17 | **README & documentation** | Problem, architecture diagram, **correct** setup instructions (incl. `NODE_EXTRA_CA_CERTS`), screenshots, tech stack, **AMD infrastructure usage** (be specific — see below). | 1-2 hours |
+| 17 | **README & documentation** | Problem, architecture diagram, **correct** setup instructions (incl. `NODE_EXTRA_CA_CERTS`), screenshots, tech stack, **AMD infrastructure usage** (be specific — see below). *CRITICAL: Strictly remove all real API keys, SSH keys, or access tokens from repo files before pushing!* | 1-2 hours |
 | 18 | **Setup script** | `setup.sh` / `setup.ps1`: install deps, **generate the DLP CA**, set `HTTPS_PROXY` + `NODE_EXTRA_CA_CERTS`, start all services. | 1 hour |
 | 19 | **Demo video (max 5 min)** | (1) Problem 30s, (2) Architecture 30s, (3) **Hero: extension catching PII on ChatGPT 1 min**, (4) Proxy catching PII in Claude Code 1 min, (5) Dashboard audit trail 30s, (6) **AMD usage** 30s, (7) Startup vision / market 1 min. | 2-3 hours |
-| 20 | **Slide deck (PDF)** | 10-12 slides: problem, solution, architecture, demo screenshots, tech stack, **AMD usage**, "why trust our proxy," market/TAM, team. | 1-2 hours |
+| 20 | **Slide deck (PDF)** | 10-12 slides: problem, solution, architecture, demo screenshots, tech stack, **AMD usage**, "why trust our proxy," market/TAM, team. *CRITICAL: Double check all slides/diagrams and remove any visible API keys or credentials!* | 1-2 hours |
 | 21 | **Final testing & bug fixes** | End-to-end smoke test. Fix breakers. | 1-2 hours |
 | 22 | **Submit on lablab.ai** | GitHub repo, demo video (MP4), slide deck (PDF), cover image, live demo URL (if deployed), 100+ word description. | 30 min |
 

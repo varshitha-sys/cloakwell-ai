@@ -105,14 +105,14 @@ Expose the local container port `11434` to the internet using a secure SSH tunne
 ```bash
 ssh -R 80:127.0.0.1:11434 serveo.net
 ```
-*Copy the public URL returned by Serveo (e.g., `https://2dd059325ae45c05.serveousercontent.com`).*
+*Copy the public URL returned by Serveo (e.g., `https://your-subdomain.serveousercontent.com`).*
 
 ### 3. Local Environment Configuration
 Update your local `.env` file to wire the proxy backend to your active tunnel and credentials:
 
 ```env
-FIREWORKS_API_KEY=fw_Sq6i9mJL3pNuy3qxmTmSqU
-FIREWORKS_BASE_URL=https://2dd059325ae45c05-36-150-116-194.serveousercontent.com/v1
+FIREWORKS_API_KEY=<YOUR_FIREWORKS_API_KEY_HERE>
+FIREWORKS_BASE_URL=https://<your-subdomain>.serveousercontent.com/v1
 FIREWORKS_MODEL=google/gemma-2-2b-it
 CLOUD_LLM_MODEL=accounts/fireworks/models/deepseek-v4-pro
 ```
