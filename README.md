@@ -1,4 +1,4 @@
-# CloakWell — Local-First AI Redaction & Safety Layer
+# Cloakwell AI — Local-First AI Redaction & Safety Layer
 
 **AMD Developer Hackathon: ACT II — Track 3 (Unicorn Track)**
 
@@ -6,9 +6,9 @@
 
 ## 🌟 What this is
 
-**CloakWell** is a local-first security "firewall" that sits between employees and public cloud AI tools (such as ChatGPT, Claude, and Gemini). 
+**Cloakwell AI** is a local-first security "firewall" that sits between employees and public cloud AI tools (such as ChatGPT, Claude, and Gemini). 
 
-Whenever an employee submits a prompt containing sensitive data (corporate secrets, passwords, database credentials, SSNs, Aadhaar, or PAN cards), CloakWell **intercepts and blocks** the request from leaving the local network. The query is then securely processed and answered locally by **Google Gemma 2 (2B) running on a private AMD Instinct GPU**, ensuring **zero data egress** for sensitive information. 
+Whenever an employee submits a prompt containing sensitive data (corporate secrets, passwords, database credentials, SSNs, Aadhaar, or PAN cards), Cloakwell AI **intercepts and blocks** the request from leaving the local network. The query is then securely processed and answered locally by **Google Gemma 2 (2B) running on a private AMD Instinct GPU**, ensuring **zero data egress** for sensitive information. 
 
 Clean prompts contain no PII and are transparently routed to public cloud models (DeepSeek-V4-Pro on Fireworks AI) for maximum performance.
 
