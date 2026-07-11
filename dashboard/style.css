@@ -535,3 +535,227 @@ textarea::placeholder {
     transform: scale(1);
   }
 }
+
+/* Statistics Dashboard */
+.stats-dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  width: 100%;
+}
+
+.stat-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+  transition: var(--transition-smooth);
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--border-focus);
+  box-shadow: var(--shadow-lg);
+}
+
+.stat-info-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-title {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  color: var(--text-secondary);
+}
+
+.stat-number {
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-top: 0.25rem;
+  line-height: 1;
+}
+
+.stat-icon {
+  font-size: 2rem;
+  width: 50px;
+  height: 50px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--color-clean);
+}
+
+.stat-icon.icon-redact {
+  color: var(--color-mild);
+  background: rgba(76, 134, 172, 0.05);
+}
+
+.stat-icon.icon-block {
+  color: var(--color-error);
+  background: var(--color-error-bg);
+}
+
+/* Audit Logs Card */
+.logs-card {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  width: 100%;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+}
+
+.logs-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+}
+
+.logs-header-title h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.btn-small {
+  padding: 0.5rem 0.85rem;
+  font-size: 0.8rem;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-secondary);
+}
+
+.btn-small:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-primary);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.table-wrapper {
+  overflow-x: auto;
+  width: 100%;
+}
+
+.logs-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.85rem;
+}
+
+.logs-table th, 
+.logs-table td {
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  vertical-align: middle;
+}
+
+.logs-table th {
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: rgba(0, 0, 0, 0.15);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.logs-table tbody tr:hover td {
+  background: rgba(255, 255, 255, 0.01);
+}
+
+.table-empty {
+  text-align: center;
+  padding: 3rem 0;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* Source badge styles */
+.source-pill {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.source-pill.source-ext {
+  background: rgba(114, 164, 194, 0.1);
+  color: var(--color-clean);
+  border: 1px solid rgba(114, 164, 194, 0.2);
+}
+
+.source-pill.source-dash {
+  background: rgba(76, 134, 172, 0.1);
+  color: var(--color-mild);
+  border: 1px solid rgba(76, 134, 172, 0.2);
+}
+
+/* Cell-specific styling */
+.cell-time {
+  font-family: var(--font-code);
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.cell-action {
+  text-transform: capitalize;
+  font-size: 0.85rem;
+}
+
+.cell-snippet {
+  color: var(--text-secondary);
+  max-width: 280px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cell-entities {
+  max-width: 250px;
+}
+
+/* Entity labels */
+.log-entity-badge {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 4px;
+  padding: 0.15rem 0.35rem;
+  font-family: var(--font-code);
+  font-size: 0.7rem;
+  color: var(--color-clean);
+  margin: 0.1rem;
+}
+
+.log-no-entities {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.font-semibold {
+  font-weight: 600;
+}
+

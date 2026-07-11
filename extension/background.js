@@ -28,6 +28,31 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       sendResponse({ success: false, error: error.message });
     });
     
-    return true; // Keep communication channel open for asynchronous reply
+    return true; // Keep communication channel open
+  } else if (request.action === 'redact-and-ask') {
+    fetch('http://localhost:8000/redact-and-ask', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        prompt: request.text
+      })
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then(data => {
+      sendResponse({ success: true, data: data });
+    })
+    .catch(error => {
+      console.error('Local query request failed:', error);
+      sendResponse({ success: false, error: error.message });
+    });
+    
+    return true;
   }
 });

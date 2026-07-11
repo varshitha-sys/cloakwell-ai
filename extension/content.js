@@ -206,52 +206,59 @@
 
   // Intercept Keydown Event
   document.addEventListener('keydown', (event) => {
-    if (isChecking) return;
-    
     if (event.key === 'Enter' && !event.shiftKey) {
       const target = event.target;
-      if (target.tagName === 'TEXTAREA' || target.getAttribute('contenteditable') === 'true') {
-        const text = getElementText(target).trim();
-        if (!text) return;
-
+      const editable = target.closest('[contenteditable="true"]');
+      
+      if (target.tagName === 'TEXTAREA' || editable) {
         if (bypassNext) {
-          bypassNext = false;
           return;
         }
 
-        // Intercept and assess safety
+        // Intercept and prevent ChatGPT from receiving the enter key
         event.preventDefault();
         event.stopPropagation();
-        
-        checkPrompt(text, target);
+        event.stopImmediatePropagation();
+
+        if (isChecking) return;
+
+        const inputEl = editable || target;
+        const text = getElementText(inputEl).trim();
+        if (!text) return;
+
+        checkPrompt(text, inputEl);
       }
     }
   }, true);
 
-  // Intercept Click Event
-  document.addEventListener('click', (event) => {
-    if (isChecking) return;
-    
+  // Intercept Click/Mousedown Event
+  function handleTrigger(event) {
     const button = event.target.closest('button, [role="button"]');
     if (button && isSendButton(button)) {
+      if (bypassNext) {
+        // Let it pass through to ChatGPT
+        return;
+      }
+      
+      // Stop event from reaching ChatGPT
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      if (isChecking) return;
+      
       const input = findInputField();
       if (input) {
         const text = getElementText(input).trim();
         if (!text) return;
 
-        if (bypassNext) {
-          bypassNext = false;
-          return;
-        }
-
-        // Intercept and assess safety
-        event.preventDefault();
-        event.stopPropagation();
-        
         checkPrompt(text, input);
       }
     }
-  }, true);
+  }
+
+  document.addEventListener('click', handleTrigger, true);
+  document.addEventListener('mousedown', handleTrigger, true);
 
   // Call background.js to perform local classification check
   function checkPrompt(text, inputElement) {
@@ -286,19 +293,17 @@
   function handleVerdict(verdict, originalText, inputElement) {
     const label = verdict.label || 'INFO';
     
-    if (label === 'BLOCK') {
-      showBlockModal(verdict, inputElement);
-    } else if (label === 'ACTION_NEEDED') {
-      showRedactModal(verdict, originalText, inputElement);
+    if (label === 'BLOCK' || label === 'ACTION_NEEDED' || label === 'WARN') {
+      showBlockModal(verdict, originalText, inputElement);
     } else {
-      // INFO/WARN -> proceed untouched
+      // INFO -> proceed untouched
       bypassNext = true;
       triggerSubmit(inputElement);
     }
   }
 
   // Modal 1: Blocked/Sensitive (Answered Locally)
-  function showBlockModal(verdict, inputElement) {
+  function showBlockModal(verdict, originalText, inputElement) {
     chrome.storage.local.get(['stats_blocked'], (data) => {
       const current = data.stats_blocked || 0;
       chrome.storage.local.set({ stats_blocked: current + 1 });
@@ -319,76 +324,37 @@
         <h2 class="cloakwell-title">CLOAKWELL Safety Intercept</h2>
       </div>
       <div class="cloakwell-body">
-        <p>This prompt contains highly sensitive data (credentials or internal files). To comply with organization policy, this request has been routed to your **local AMD GPU model** instead of the cloud.</p>
-        <div class="cloakwell-preview-box">
-          [Local Gemma 2 Response]: Processed prompt locally using your AMD GPU session. Original data was never transmitted out of the security boundary.
+        <p>This prompt contains sensitive data. To comply with organization policy, this request has been blocked from leaving your network and is being answered locally by your **private AMD Instinct GPU**.</p>
+        <div class="cloakwell-preview-box" id="cloakwell-local-response">
+          🔄 Contacting private local model (Google Gemma 2 on AMD Instinct GPU)...
         </div>
       </div>
       <div class="cloakwell-actions">
-        <button class="cloakwell-btn cloakwell-btn-primary" id="cloakwell-close-btn">Close</button>
+        <button class="cloakwell-btn cloakwell-btn-primary" id="cloakwell-close-btn" disabled>Waiting for GPU...</button>
       </div>
     `;
     
     overlay.appendChild(modal);
     document.body.appendChild(overlay);
     
-    document.getElementById('cloakwell-close-btn').addEventListener('click', () => {
+    const closeBtn = document.getElementById('cloakwell-close-btn');
+    closeBtn.addEventListener('click', () => {
       overlay.remove();
     });
-  }
 
-  // Modal 2: Action Needed/Mild PII (Redact Prompt)
-  function showRedactModal(verdict, originalText, inputElement) {
-    chrome.storage.local.get(['stats_blocked'], (data) => {
-      const current = data.stats_blocked || 0;
-      chrome.storage.local.set({ stats_blocked: current + 1 });
-    });
-
-    const overlay = document.createElement('div');
-    overlay.className = 'cloakwell-overlay';
-    
-    const modal = document.createElement('div');
-    modal.className = 'cloakwell-modal';
-    
-    // Highlight placeholders in preview
-    const redactedText = verdict.redacted_text || '';
-    const highlightedText = redactedText.replace(/(\[[A-Z0-9_]+\])/g, '<span class="cloakwell-highlight">$1</span>');
-
-    modal.innerHTML = `
-      <div class="cloakwell-header">
-        <svg class="cloakwell-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round">
-          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-        </svg>
-        <h2 class="cloakwell-title">Sanitize Prompt?</h2>
-      </div>
-      <div class="cloakwell-body">
-        <p>CLOAKWELL detected PII or organization terms. We recommend sending the sanitized version to protect your identity:</p>
-        <div class="cloakwell-preview-box">${highlightedText}</div>
-      </div>
-      <div class="cloakwell-actions">
-        <button class="cloakwell-btn cloakwell-btn-secondary" id="cloakwell-cancel-btn">Cancel</button>
-        <button class="cloakwell-btn cloakwell-btn-primary" id="cloakwell-redact-btn">Send Sanitized</button>
-      </div>
-    `;
-    
-    overlay.appendChild(modal);
-    document.body.appendChild(overlay);
-    
-    // Cancel: keep original text, don't send
-    document.getElementById('cloakwell-cancel-btn').addEventListener('click', () => {
-      overlay.remove();
-    });
-    
-    // Send Sanitized: replace text and send
-    document.getElementById('cloakwell-redact-btn').addEventListener('click', () => {
-      setElementText(inputElement, redactedText);
-      overlay.remove();
-      
-      // Delay submit slightly to allow web page scripts to register the changed text
-      setTimeout(() => {
-        bypassNext = true;
-        triggerSubmit(inputElement);
-      }, 50);
+    // Query the local model via background script
+    chrome.runtime.sendMessage({ action: 'redact-and-ask', text: originalText }, (response) => {
+      const responseBox = document.getElementById('cloakwell-local-response');
+      if (response && response.success) {
+        // Strip out the custom routing header since we are already inside the local intercept UI
+        let cleanResponse = response.data.final_response || '';
+        cleanResponse = cleanResponse.replace(/🤖 \*\*\[Secure Local Mode:.*\]\*\*\n\n/, '');
+        responseBox.innerText = cleanResponse;
+      } else {
+        responseBox.innerText = "❌ Local inference failed or proxy is offline.";
+      }
+      closeBtn.innerText = "Close";
+      closeBtn.removeAttribute('disabled');
     });
   }
 })();

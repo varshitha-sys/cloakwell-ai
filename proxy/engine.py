@@ -30,6 +30,7 @@ import redactor
 import session as session_module
 import tier1
 import tier2
+import logger
 
 load_dotenv(Path(__file__).resolve().parent.parent / ".env", override=False)
 
@@ -142,6 +143,25 @@ def classify(
 
     # 5. Update conversation-level running risk (post-message).
     session_risk = _tracker.update(session_id, _LABEL_RISK[label])
+
+    # 6. Log the transaction to SQLite
+    action = "forward"
+    if label == "BLOCK":
+        action = "block"
+    elif label == "ACTION_NEEDED":
+        action = "redact"
+        
+    try:
+        logger.log_transaction(
+            source=source,
+            original_text=text,
+            redacted_text=redaction.redacted_text,
+            entities=entities,
+            label=label,
+            action=action
+        )
+    except Exception as e:
+        print(f"[DLP logger error]: Failed to log transaction: {e}")
 
     return {
         "label": label,

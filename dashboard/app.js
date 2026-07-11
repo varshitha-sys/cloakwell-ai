@@ -13,6 +13,12 @@ document.addEventListener('DOMContentLoaded', () => {
   
   const redactedContent = document.getElementById('redacted-content');
   const responseContent = document.getElementById('response-content');
+  
+  const statTotal = document.getElementById('stat-total');
+  const statRedacted = document.getElementById('stat-redacted');
+  const statBlocked = document.getElementById('stat-blocked');
+  const logsTbody = document.getElementById('logs-tbody');
+  const refreshLogsBtn = document.getElementById('refresh-logs-btn');
 
   // Regex to match uppercase bracketed placeholders like [NAME_1], [SSN_1], or [REDACTED_API_KEY_1]
   const PLACEHOLDER_REGEX = /(\[[A-Z0-9_]+\])/g;
@@ -55,6 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
       resetOutputs();
     } finally {
       setLoading(false);
+      updateDashboardData();
     }
   });
 
@@ -171,4 +178,90 @@ document.addEventListener('DOMContentLoaded', () => {
       .replace(/"/g, "&quot;")
       .replace(/'/g, "&#039;");
   }
+
+  async function updateDashboardData() {
+    try {
+      await Promise.all([fetchStats(), fetchLogs()]);
+    } catch (err) {
+      console.error('Failed to update dashboard data:', err);
+    }
+  }
+
+  async function fetchStats() {
+    try {
+      const res = await fetch('/api/stats');
+      if (!res.ok) throw new Error('Failed to fetch stats');
+      const stats = await res.json();
+      if (stats) {
+        if (statTotal) statTotal.textContent = stats.total ?? 0;
+        if (statRedacted) statRedacted.textContent = stats.by_action?.redact ?? 0;
+        if (statBlocked) statBlocked.textContent = stats.by_action?.block ?? 0;
+      }
+    } catch (err) {
+      console.error('Error fetching stats:', err);
+    }
+  }
+
+  async function fetchLogs() {
+    try {
+      const res = await fetch('/api/logs?limit=50');
+      if (!res.ok) throw new Error('Failed to fetch logs');
+      const logs = await res.json();
+      
+      if (!logsTbody) return;
+      
+      if (!logs || logs.length === 0) {
+        logsTbody.innerHTML = `
+          <tr>
+            <td colspan="6" class="table-empty">No transaction history found. Submit a prompt to generate logs.</td>
+          </tr>
+        `;
+        return;
+      }
+
+      logsTbody.innerHTML = logs.map(log => {
+        const date = new Date(log.timestamp);
+        const formattedDate = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + 
+                             ' ' + date.toLocaleDateString();
+
+        let labelClass = 'tag-clean';
+        if (log.label === 'BLOCK') labelClass = 'tag-blocked';
+        else if (log.label === 'ACTION_NEEDED') labelClass = 'tag-redacted';
+        else if (log.label === 'WARN') labelClass = 'tag-warning';
+
+        let actionText = 'Forwarded';
+        if (log.action === 'block') actionText = 'Blocked';
+        else if (log.action === 'redact') actionText = 'Redacted';
+
+        const entityPills = log.entities && log.entities.length > 0 
+          ? log.entities.map(e => `<code class="log-entity-badge">${escapeHtml(e.type)}</code>`).join(' ')
+          : '<span class="log-no-entities">None</span>';
+
+        const snippet = log.redacted_text.length > 80 
+          ? escapeHtml(log.redacted_text.slice(0, 80)) + '...'
+          : escapeHtml(log.redacted_text);
+
+        return `
+          <tr>
+            <td class="cell-time">${escapeHtml(formattedDate)}</td>
+            <td class="cell-source"><span class="source-pill ${log.source === 'extension' ? 'source-ext' : 'source-dash'}">${escapeHtml(log.source)}</span></td>
+            <td><span class="badge-tag ${labelClass}">${escapeHtml(log.label)}</span></td>
+            <td class="cell-action font-semibold">${escapeHtml(actionText)}</td>
+            <td class="cell-snippet" title="${escapeHtml(log.redacted_text)}">${snippet}</td>
+            <td class="cell-entities">${entityPills}</td>
+          </tr>
+        `;
+      }).join('');
+
+    } catch (err) {
+      console.error('Error fetching logs:', err);
+    }
+  }
+
+  if (refreshLogsBtn) {
+    refreshLogsBtn.addEventListener('click', updateDashboardData);
+  }
+
+  // Load initial stats & logs
+  updateDashboardData();
 });

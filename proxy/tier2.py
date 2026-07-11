@@ -61,6 +61,8 @@ EAMPSLEDUMYY"), you MUST flag it as a CREDENTIAL. Never let a secret slip merely
 because its shape is unusual, and treat a user plainly handing over a live \
 credential as a severe leak (BLOCK).
 
+CRITICAL RULE: Do NOT label standard contact PII (emails, phone numbers), person names, or structured national/financial identifiers (like SSNs, Aadhaar numbers, PAN cards, or credit cards) as CREDENTIAL. Those are already handled by our client-side layer and should be ignored. You must only use CREDENTIAL for actual passwords, secret keys, access tokens, API keys, or raw authentication secrets.
+
 Assign exactly one severity label:
 - INFO: benign, no sensitive context.
 - WARN: mildly sensitive; log and let the user decide.
@@ -92,12 +94,22 @@ def build_system_prompt(policy=None) -> str:
 
 def build_messages(text, *, context=None, tier1_entities=None, policy=None) -> list[dict]:
     """Assemble the chat messages: system + optional context/Tier-1 hints + user."""
-    messages = [{"role": "system", "content": build_system_prompt(policy)}]
+    system_content = build_system_prompt(policy)
+    
+    # Since Gemma 2 chat template does not support the "system" role, we frame the
+    # system instructions as a "user" prompt followed by an "assistant" confirmation.
+    messages = [
+        {"role": "user", "content": system_content},
+        {"role": "assistant", "content": "Understood. I will act as the DLP classifier and output only the valid JSON response."}
+    ]
 
     if context:
         thread = "\n".join(str(c) for c in context)
         messages.append(
             {"role": "user", "content": f"Earlier in this conversation:\n{thread}"}
+        )
+        messages.append(
+            {"role": "assistant", "content": "Understood. I will keep this conversation history in mind."}
         )
     if tier1_entities:
         found = ", ".join(sorted({e.get("type", "") for e in tier1_entities}))
@@ -107,6 +119,9 @@ def build_messages(text, *, context=None, tier1_entities=None, policy=None) -> l
                 "content": f"(Structured PII already detected by regex: {found}. "
                 "Grade the contextual severity given this.)",
             }
+        )
+        messages.append(
+            {"role": "assistant", "content": "Understood. I will take this pre-detected PII into account."}
         )
 
     messages.append({"role": "user", "content": text})
@@ -205,6 +220,7 @@ def _get_client():
         _openai_client = OpenAI(
             api_key=os.environ["FIREWORKS_API_KEY"],  # KeyError -> caught by classify()
             base_url=os.getenv("FIREWORKS_BASE_URL", _DEFAULT_BASE_URL),
+            timeout=60.0,
         )
     return _openai_client
 

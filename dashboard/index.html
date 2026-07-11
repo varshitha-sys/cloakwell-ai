@@ -33,6 +33,31 @@
     </header>
 
     <main class="app-main">
+      <!-- Statistics Dashboard -->
+      <section class="stats-dashboard-grid">
+        <div class="card stat-card">
+          <div class="stat-info-group">
+            <div class="stat-title">Total Interceptions</div>
+            <h2 id="stat-total" class="stat-number">0</h2>
+          </div>
+          <div class="stat-icon">📊</div>
+        </div>
+        <div class="card stat-card">
+          <div class="stat-info-group">
+            <div class="stat-title">Redacted Prompts</div>
+            <h2 id="stat-redacted" class="stat-number">0</h2>
+          </div>
+          <div class="stat-icon icon-redact">🛡️</div>
+        </div>
+        <div class="card stat-card">
+          <div class="stat-info-group">
+            <div class="stat-title">Blocked Leaks</div>
+            <h2 id="stat-blocked" class="stat-number">0</h2>
+          </div>
+          <div class="stat-icon icon-block">🚫</div>
+        </div>
+      </section>
+
       <!-- Input Card -->
       <section class="card input-card">
         <div class="card-header">
@@ -93,6 +118,38 @@
             </div>
           </div>
         </article>
+      </section>
+
+      <!-- Audit Logs Trail -->
+      <section class="card logs-card">
+        <div class="card-header logs-header-row">
+          <div class="logs-header-title">
+            <h2>Audit Trail</h2>
+            <p class="description">Live transaction logs of processed queries. Sensitive raw values are never logged or stored on disk.</p>
+          </div>
+          <button id="refresh-logs-btn" class="btn btn-secondary btn-small" type="button">
+            🔄 Refresh logs
+          </button>
+        </div>
+        <div class="table-wrapper">
+          <table class="logs-table">
+            <thead>
+              <tr>
+                <th>Timestamp</th>
+                <th>Source</th>
+                <th>Label</th>
+                <th>Action</th>
+                <th>Redacted Prompt Snippet</th>
+                <th>Identified Entities</th>
+              </tr>
+            </thead>
+            <tbody id="logs-tbody">
+              <tr>
+                <td colspan="6" class="table-empty">No transaction history found. Submit a prompt to generate logs.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </section>
     </main>
 
