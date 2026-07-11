@@ -1,4 +1,4 @@
-# [Project Name TBD] — Local-First AI Redaction Layer
+# CloakWell — Local-First AI Redaction Layer
 
 **AMD Developer Hackathon: ACT II — Track 3 (Unicorn Track)**
 
@@ -40,6 +40,7 @@ docker compose up
 ├── proxy/           # Python DLP core: TLS MITM proxy + detection engine + /classify API
 ├── extension/        # Browser extension for real-time prompt interception (demo surface)
 ├── docs/             # Architecture notes, research, pitch materials
+├── ln-page/          # Landing Page for the product
 ├── Dockerfile
 └── docker-compose.yml
 ```
