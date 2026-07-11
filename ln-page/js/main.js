@@ -2,8 +2,7 @@ import { renderNav, renderFooter } from "./nav.js";
 import { mountAsciiBackground } from "./ascii-bg.js";
 
 async function boot() {
-  await mountAsciiBackground();
-
+  // Render nav & footer immediately — no network dependency
   const root = document.getElementById("app");
   if (!root) return;
 
@@ -14,6 +13,9 @@ async function boot() {
 
   const footerHost = document.querySelector('[data-partial="footer"]');
   if (footerHost) footerHost.innerHTML = renderFooter();
+
+  // ASCII background loads in parallel — never blocks the UI
+  mountAsciiBackground();
 }
 
 if (document.readyState === "loading") {
