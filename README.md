@@ -16,7 +16,6 @@ Clean prompts contain no PII and are transparently routed to public cloud models
 
 ## 🏗️ Architecture & Data Flow
 
-For the full network topology and setup guide, see [AMD_GEMMA_INTEGRATION.md](AMD_GEMMA_INTEGRATION.md).
 
 ```text
 =========================================================================================
