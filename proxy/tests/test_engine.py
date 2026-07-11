@@ -83,6 +83,37 @@ def test_session_risk_accumulates_across_a_thread():
     assert 0.0 < r1 <= r2 <= 1.0
 
 
+def test_tier2_credential_over_email_does_not_escalate_to_block():
+    # The over-sensitivity bug: Gemma sees an email regex already caught, relabels it
+    # CREDENTIAL, and grades the whole message BLOCK. The guard drops the spurious
+    # CREDENTIAL (its span is already represented by the Tier-1 EMAIL) and withdraws
+    # the BLOCK, so the email stays WARN.
+    out = engine.classify(
+        "reach jane@example.com",
+        session_id="t-cred-email",
+        tier2_client=_tier2_returning(
+            "BLOCK", entities=[{"type": "CREDENTIAL", "value": "jane@example.com"}]
+        ),
+    )
+    assert out["label"] == "WARN"
+    assert not any(e["type"] == "CREDENTIAL" for e in out["entities"])
+    assert any(e["type"] == "EMAIL" for e in out["entities"])
+
+
+def test_tier2_genuine_unshaped_credential_still_blocks():
+    # The safety net must survive the guard: a live secret regex did NOT catch has no
+    # structured entity to overlap, so it is kept and the BLOCK stands.
+    out = engine.classify(
+        "my apikey is EAMPSLEDUMYY",
+        session_id="t-cred-real",
+        tier2_client=_tier2_returning(
+            "BLOCK", entities=[{"type": "CREDENTIAL", "value": "EAMPSLEDUMYY"}]
+        ),
+    )
+    assert out["label"] == "BLOCK"
+    assert any(e["type"] == "CREDENTIAL" for e in out["entities"])
+
+
 def test_output_contract_has_all_fields():
     out = engine.classify("hello there", session_id="t-contract",
                           tier2_client=_tier2_returning("INFO"))

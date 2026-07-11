@@ -87,6 +87,45 @@ def _rule_label(entities: list[dict]) -> str:
     return label
 
 
+# Tier-2 types that assert "this is a live secret" and can single-handedly push a
+# message to BLOCK. They are also what over-sensitivity produces: Gemma relabels an
+# email/phone/Aadhaar regex already caught as one of these and grades BLOCK.
+_CREDENTIAL_TYPES = {"CREDENTIAL", "GOV_CREDENTIAL"}
+
+
+def _spans_overlap(a: dict, b: dict) -> bool:
+    if None in (a.get("start"), a.get("end"), b.get("start"), b.get("end")):
+        return False
+    return a["start"] < b["end"] and b["start"] < a["end"]
+
+
+def _covered_by_structured(entity: dict, structured: list[dict]) -> bool:
+    """True if a Tier-2 credential guess just points at data Tier-1 already caught."""
+    val = str(entity.get("value", "")).lower()
+    for s in structured:
+        if _spans_overlap(entity, s):
+            return True
+        sval = str(s.get("value", "")).lower()
+        if val and sval and (val in sval or sval in val):
+            return True
+    return False
+
+
+def _reconcile_credentials(t2: dict, structured: list[dict]) -> tuple[list[dict], str]:
+    """
+    Guard against Tier-2 over-sensitivity.
+    """
+    kept = [
+        e
+        for e in t2["entities"]
+        if not (e.get("type") in _CREDENTIAL_TYPES and _covered_by_structured(e, structured))
+    ]
+    label = t2["label"]
+    if label == "BLOCK" and not any(e.get("type") in _CREDENTIAL_TYPES for e in kept):
+        label = _rule_label(kept)
+    return kept, label
+
+
 def _dedupe(entities: list[dict]) -> list[dict]:
     seen: set[tuple] = set()
     out: list[dict] = []
@@ -130,9 +169,9 @@ def classify(
         tier = "tier2"
         t2 = tier2.classify(text, context=context, tier1_entities=structured,
                             policy=pol, client=tier2_client)
-        label = _max_label(rule_label, t2["label"])
+        contextual_entities, t2_label = _reconcile_credentials(t2, structured)
+        label = _max_label(rule_label, t2_label)
         confidence = t2["confidence"]
-        contextual_entities = t2["entities"]
         if t2.get("reasoning"):
             reasons.append(f"tier2:{t2['reasoning']}")
 

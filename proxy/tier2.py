@@ -53,13 +53,20 @@ undisclosed acquisitions, internal infrastructure, "the usual prod creds", \
 unreleased plans).
 
 A fast regex layer already catches WELL-FORMED structured PII (SSNs, credit \
-cards, and standard-format keys such as sk-... or AKIA...), so you need not \
-re-flag those. But you are the SAFETY NET for secrets regex cannot match: if a \
-user is clearly sharing a live credential -- an API key, password, token, access \
-key, or similar secret -- whose shape is non-standard (e.g. "my apikey is \
-EAMPSLEDUMYY"), you MUST flag it as a CREDENTIAL. Never let a secret slip merely \
-because its shape is unusual, and treat a user plainly handing over a live \
-credential as a severe leak (BLOCK).
+cards, national IDs like Aadhaar/PAN, emails, phone numbers, and standard-format \
+keys such as sk-... or AKIA...), so you need not re-flag those. You are the SAFETY \
+NET only for AUTHENTICATION SECRETS regex cannot match: a live API key, password, \
+token, or access key whose shape is non-standard (e.g. "my apikey is \
+EAMPSLEDUMYY"). Flag such a secret as CREDENTIAL and treat a user plainly handing \
+one over as a severe leak (BLOCK).
+
+CREDENTIAL means a secret that GRANTS ACCESS. It is NOT for identity or contact \
+data: emails, phone numbers, national IDs (Aadhaar, PAN, SSN), and card numbers \
+are their own categories that regex already catches -- an alphanumeric string is \
+not a credential merely because it looks secret-like. NEVER relabel such data as \
+CREDENTIAL, and do NOT escalate it to BLOCK on that basis. Only reach for \
+CREDENTIAL when no other type represents the value and it is clearly an access \
+secret.
 
 Assign exactly one severity label:
 - INFO: benign, no sensitive context.
@@ -105,7 +112,8 @@ def build_messages(text, *, context=None, tier1_entities=None, policy=None) -> l
             {
                 "role": "user",
                 "content": f"(Structured PII already detected by regex: {found}. "
-                "Grade the contextual severity given this.)",
+                "Grade the contextual severity given this. Do NOT re-flag any of "
+                "these already-detected values as CREDENTIAL.)",
             }
         )
 
