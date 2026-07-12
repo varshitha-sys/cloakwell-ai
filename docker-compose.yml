@@ -1,0 +1,63 @@
+# Cloakwell DLP — self-contained, no-key demo.
+#
+#   docker compose up --build
+#   -> open http://localhost:8000 to watch the audit log + stats populate.
+#   docker compose down       (stop; keeps the audit DB)
+#   docker compose down -v    (stop + reset the audit DB / cert)
+#
+# The `client` fires canned prompts THROUGH the proxy, so the dashboard fills
+# with BLOCK / REDACT / forward verdicts. No API key needed: the addon classifies
+# and logs each prompt before forwarding, so blocked/redacted rows are recorded
+# even offline (benign prompts just 401 upstream, which the client ignores).
+
+services:
+  # mitmproxy addon: intercept -> classify -> block/redact/forward. Internal only.
+  proxy:
+    build: .
+    command: mitmdump -s addon.py --listen-port 8443
+    environment:
+      CLOAKWELL_DB_PATH: /data/cloakwell_audit.db
+    volumes:
+      - mitm-certs:/root/.mitmproxy   # CA cert generated here, shared with client
+      - audit-data:/data             # SQLite audit DB, shared with dashboard
+    healthcheck:
+      # Ready once the CA cert exists (also what the client waits on).
+      test: ["CMD", "test", "-f", "/root/.mitmproxy/mitmproxy-ca-cert.pem"]
+      interval: 2s
+      timeout: 2s
+      retries: 30
+
+  # FastAPI dashboard: reads the shared audit DB, serves the static UI on :8000.
+  dashboard:
+    build: .
+    command: uvicorn api:app --host 0.0.0.0 --port 8000
+    environment:
+      CLOAKWELL_DB_PATH: /data/cloakwell_audit.db
+    volumes:
+      - audit-data:/data
+    ports:
+      - "8000:8000"
+    depends_on:
+      - proxy
+
+  # Fires canned prompts through the proxy, then exits. No API key required.
+  client:
+    build: .
+    command: python /app/demo/client.py
+    working_dir: /app
+    environment:
+      HTTPS_PROXY: http://proxy:8443
+      HTTP_PROXY: http://proxy:8443
+      PROXY_URL: http://proxy:8443
+      REQUESTS_CA_BUNDLE: /certs/mitmproxy-ca-cert.pem
+      SSL_CERT_FILE: /certs/mitmproxy-ca-cert.pem
+    volumes:
+      - mitm-certs:/certs:ro
+    depends_on:
+      proxy:
+        condition: service_healthy
+    restart: "no"
+
+volumes:
+  mitm-certs:
+  audit-data:

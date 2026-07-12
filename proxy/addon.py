@@ -21,11 +21,20 @@ import copy
 import json
 
 import engine
+import logger
 
 try:  # only present when actually running under mitmproxy
     from mitmproxy import http
 except ImportError:  # keeps the pure helpers importable/testable standalone
     http = None
+
+# Ensure the audit table exists even when the proxy starts on a cold DB before
+# the dashboard (api.py) has had a chance to run init_db — e.g. in containers
+# where both share a volume. CREATE TABLE IF NOT EXISTS makes this idempotent.
+try:
+    logger.init_db()
+except Exception as _e:  # never let logging setup break the proxy from importing
+    print(f"[DLP logger error]: init_db on addon load failed: {_e}")
 
 # AI API hosts whose request bodies we inspect.
 AI_HOSTS = {

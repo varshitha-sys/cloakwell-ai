@@ -11,10 +11,16 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import sqlite3
 from pathlib import Path
 
-DB_PATH = Path(__file__).resolve().parent / "cloakwell_audit.db"
+# Default: alongside the code (unchanged for setup.sh / local runs). Containers
+# override this to a shared volume so the proxy (writer) and dashboard (reader)
+# see the same DB — see docker-compose.yml.
+DB_PATH = Path(
+    os.getenv("CLOAKWELL_DB_PATH", str(Path(__file__).resolve().parent / "cloakwell_audit.db"))
+)
 
 
 def get_db_connection() -> sqlite3.Connection:

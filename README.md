@@ -71,6 +71,40 @@ Cloakwell AI includes a web-based dashboard to monitor redact/block statistics a
 
 ---
 
+## 🐳 One-command containerized demo (no API key)
+
+Prefer `docker compose` over the `setup.sh` venv dance? The whole pipeline runs
+self-contained — proxy, dashboard, and a demo client that fires canned prompts
+through the proxy so you can watch verdicts land live:
+
+```bash
+docker compose up --build
+```
+
+Then open **http://localhost:8000/** — the stat cards and audit log fill up as the
+`client` service sends prompts covering every verdict (`BLOCK` / `ACTION_NEEDED` /
+`WARN` / `INFO`). **No API key or host setup needed**: the addon classifies and logs
+each prompt *before* forwarding, so blocked and redacted rows are recorded even
+offline (benign prompts simply `401` upstream, which the client ignores).
+
+How it fits together (three services, one image, two named volumes):
+
+* **`proxy`** — `mitmdump -s addon.py` on `:8443` (internal); generates the CA cert
+  onto the `mitm-certs` volume and writes the audit DB to the `audit-data` volume.
+* **`dashboard`** — `uvicorn api:app` on `:8000` (published); reads the shared DB.
+* **`client`** — waits for the proxy's cert, then routes canned prompts through it.
+
+```bash
+docker compose down        # stop (audit DB persists)
+docker compose down -v     # stop + reset the audit DB and cert
+```
+
+> The audit DB path is set via `CLOAKWELL_DB_PATH` so the proxy (writer) and
+> dashboard (reader) share one file on the `audit-data` volume; local `setup.sh`
+> runs keep the default in-repo path.
+
+---
+
 ## 🖥️ Using Cloakwell with Claude Code (and other CLI/agentic tools)
 
 The browser extension isn't the only front door — Cloakwell also ships a
