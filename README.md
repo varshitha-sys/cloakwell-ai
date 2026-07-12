@@ -71,6 +71,50 @@ Cloakwell AI includes a web-based dashboard to monitor redact/block statistics a
 
 ---
 
+## 🖥️ Using Cloakwell with Claude Code (and other CLI/agentic tools)
+
+The browser extension isn't the only front door — Cloakwell also ships a
+`mitmproxy` addon (`proxy/addon.py`) that TLS-intercepts outbound requests from
+CLI/agentic AI tools (Claude Code, Antigravity, etc.) and runs them through the
+**same** classify → redact → block pipeline (`engine.classify`) used by the
+extension, in-process, with no extra HTTP hop.
+
+**Start the proxy:**
+
+```bash
+./setup.sh
+```
+
+This launches the addon in the background and writes `.cloakwell-env.sh` with
+the env vars needed to route traffic through it.
+
+**Point Claude Code at it, in the same shell you'll launch `claude` from:**
+
+```bash
+source .cloakwell-env.sh
+claude
+```
+
+`NODE_EXTRA_CA_CERTS` is required alongside `HTTPS_PROXY` — Node's TLS layer
+rejects the proxy's self-signed CA without it, and Claude Code fails silently
+if it's missing. `setup.sh` sets up both for you.
+
+Every prompt now gets classified before it leaves your machine:
+- `INFO` / `WARN` → forwarded untouched
+- `ACTION_NEEDED` → the request body is rewritten with redacted placeholders before forwarding
+- `BLOCK` → short-circuited locally; nothing leaves the host
+
+**When you're done:**
+
+```bash
+./setup.sh stop
+unset HTTPS_PROXY HTTP_PROXY NODE_EXTRA_CA_CERTS
+```
+
+Don't leave a shell's traffic routed through a proxy you've stopped.
+
+---
+
 ## 📄 License
 
 MIT — see [LICENSE](LICENSE).

@@ -10,7 +10,13 @@
     "http://localhost:8000/*"
   ],
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "background.js",
+    "scripts": ["background.js"]
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "cloakwell@amd-hackathon"
+    }
   },
   "content_scripts": [
     {
